@@ -74,7 +74,7 @@ int main()
     graph->start();
     while (ifs.good())
     {
-        static char prev{0xFF};
+        static auto prev{(char)0xFF};
         if (auto curr{(char)ifs.get()}; std::isdigit(curr) && curr != prev)
         {
             auto timestamp{graphs::gettimestamp()};
