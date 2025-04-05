@@ -24,7 +24,7 @@ add_dependencies(${PROJECT_NAME} cavaproject)
 
 target_link_libraries(${PROJECT_NAME}
     graphs
-    shellcmd
+    shell
     ${WIRINGPI_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
 )
