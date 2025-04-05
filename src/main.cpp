@@ -34,7 +34,7 @@ class StateIf
 {
   public:
     virtual ~StateIf() = default;
-    virtual void Run() = 0;
+    virtual void run() = 0;
 };
 
 class State : public StateIf
@@ -45,7 +45,6 @@ class State : public StateIf
         logif{logif},
         pos{pos}, display{display}
     {
-        Run();
         log(logif, logs::level::debug, "Created state @ pos: " + str(pos));
     }
 
@@ -54,7 +53,7 @@ class State : public StateIf
         log(logif, logs::level::debug, "Removed state @ pos: " + str(pos));
     }
 
-    void Run()
+    void run() override
     {
         display->show(str(pos), !pos ? disptype::colortype::second
                                      : disptype::colortype::first);
@@ -80,6 +79,7 @@ class StateHandler
     void set(uint32_t pos)
     {
         state = std::make_unique<State>(pos, display, logif);
+        state->run();
     }
 
   private:
