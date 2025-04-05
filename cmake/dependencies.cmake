@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-find_package(Threads REQUIRED)
-find_library(WIRINGPI_LIBRARIES NAMES wiringPi)
-include_directories(${WIRINGPI_INCLUDE_DIRS})
-
 include(ExternalProject)
 
 set(source_dir "${CMAKE_BINARY_DIR}/libgraphs-src")
@@ -46,6 +42,27 @@ EXTERNALPROJECT_ADD(
 include_directories(${source_dir}/inc)
 link_directories(${build_dir}/build)
 
+set(source_dir "${CMAKE_BINARY_DIR}/liblogger-src")
+set(build_dir "${CMAKE_BINARY_DIR}/liblogger-build")
+
+EXTERNALPROJECT_ADD(
+  liblogger
+  GIT_REPOSITORY    https://github.com/lukaskaz/lib-logger.git
+  GIT_TAG           main
+  PATCH_COMMAND     ""
+  PREFIX            liblogger-workspace
+  SOURCE_DIR        ${source_dir}
+  BINARY_DIR        ${build_dir}
+  CONFIGURE_COMMAND mkdir /${build_dir}/build &> /dev/null
+  BUILD_COMMAND     cd ${build_dir}/build && cmake -D BUILD_SHARED_LIBS=ON
+                    ${source_dir} && make
+  UPDATE_COMMAND    ""
+  INSTALL_COMMAND   "" 
+  TEST_COMMAND      ""
+)
+include_directories(${source_dir}/inc)
+link_directories(${build_dir}/build)
+
 set(project_dir "${CMAKE_BINARY_DIR}/cava-project")
 EXTERNALPROJECT_ADD(
   cavaproject
@@ -64,3 +81,23 @@ EXTERNALPROJECT_ADD(
 )
 #include_directories(${project_dir}/inc)
 #link_directories(${project_dir}/build)
+
+set(source_dir "${CMAKE_BINARY_DIR}/libdisplays-src")
+set(build_dir "${CMAKE_BINARY_DIR}/libdisplays-build")
+EXTERNALPROJECT_ADD(
+  libdisplays
+  GIT_REPOSITORY    https://github.com/lukaskaz/lib-displays.git
+  GIT_TAG           main
+  PATCH_COMMAND     ${patching_cmd}
+  PREFIX            libdisplays-workspace
+  SOURCE_DIR        ${source_dir}
+  BINARY_DIR        ${build_dir}
+  CONFIGURE_COMMAND mkdir /${build_dir}/build &> /dev/null
+  BUILD_COMMAND     cd ${build_dir}/build && cmake -D BUILD_SHARED_LIBS=ON
+                    ${source_dir} && make -j 4
+  UPDATE_COMMAND    ""
+  INSTALL_COMMAND   "" 
+  TEST_COMMAND      ""
+)
+include_directories(${source_dir}/inc)
+link_directories(${build_dir}/build)

@@ -20,12 +20,13 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_executable(${PROJECT_NAME} ${SOURCES})
 add_dependencies(${PROJECT_NAME} libgraphs)
 add_dependencies(${PROJECT_NAME} libshellcmd)
+add_dependencies(${PROJECT_NAME} liblogger)
+add_dependencies(${PROJECT_NAME} libdisplays)
 add_dependencies(${PROJECT_NAME} cavaproject)
 
 target_link_libraries(${PROJECT_NAME}
     graphs
     shell
-    ${WIRINGPI_LIBRARIES}
-    ${CMAKE_THREAD_LIBS_INIT}
+    logger
+    displays
 )
-
