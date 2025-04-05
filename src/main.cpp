@@ -41,15 +41,22 @@ class State : public StateIf
 {
   public:
     explicit State(uint32_t pos, std::shared_ptr<DisplayIf> display,
+                   std::shared_ptr<graphs::GraphIf> graph,
+                   std::shared_ptr<graphs::helpers::TimeMonitor> tm,
                    std::shared_ptr<logs::LogIf> logif) :
-        logif{logif},
-        pos{pos}, display{display}
+        pos{pos},
+        logif{logif}, display{display}, graph{graph}, tm{tm}
     {
+        auto timems{str(tm->getmiliseconds())};
+        graph->add(timems + separator + str(pos));
         log(logif, logs::level::debug, "Created state @ pos: " + str(pos));
+        run();
     }
 
     ~State()
     {
+        auto timems{str(tm->getmiliseconds())};
+        graph->add(timems + separator + str(pos));
         log(logif, logs::level::debug, "Removed state @ pos: " + str(pos));
     }
 
@@ -60,9 +67,13 @@ class State : public StateIf
     }
 
   private:
-    std::shared_ptr<logs::LogIf> logif;
-    uint32_t pos;
-    std::shared_ptr<DisplayIf> display;
+    const std::string separator{","};
+    const std::string timems{","};
+    const uint32_t pos;
+    const std::shared_ptr<logs::LogIf> logif;
+    const std::shared_ptr<DisplayIf> display;
+    const std::shared_ptr<graphs::GraphIf> graph;
+    std::shared_ptr<graphs::helpers::TimeMonitor> tm;
 };
 
 class StateHandler
@@ -74,18 +85,30 @@ class StateHandler
             display::Factory::create<disptype::Display, disptype::config_t,
                                      disptype::param_t>(
                 "/dev/spidev0.0", {disptype::commontype::anode, {}, {}});
+
+        graph =
+            graphs::Factory::create<graphs::dygraph::rangesamples::Graph,
+                                    graphs::dygraph::rangesamples::configall_t>(
+                {{"Servos switching", "time [sec]", "servo nuim [0, 5]"},
+                 {1200, 400},
+                 {100ms, 100, {{"data.csv", "time,state", 1000}}}});
+        timemonitor = std::make_shared<graphs::helpers::TimeMonitor>();
+        graph->start();
     }
 
     void set(uint32_t pos)
     {
-        state = std::make_unique<State>(pos, display, logif);
-        state->run();
+        state.reset();
+        state =
+            std::make_unique<State>(pos, display, graph, timemonitor, logif);
     }
 
   private:
     const std::shared_ptr<logs::LogIf> logif;
     std::unique_ptr<StateIf> state;
     std::shared_ptr<DisplayIf> display;
+    std::shared_ptr<graphs::GraphIf> graph;
+    std::shared_ptr<graphs::helpers::TimeMonitor> timemonitor;
 };
 
 class Async
@@ -145,21 +168,12 @@ int main(int argc, char** argv)
         //     {100ms, 100, {{"data.csv", "time,state"}}});
         // $ amixer -c 8 sset PCM 5%
 
-        auto graph =
-            graphs::Factory::create<graphs::dygraph::rangesamples::Graph,
-                                    graphs::dygraph::rangesamples::configall_t>(
-                {{"Servos switching", "time [sec]", "servo nuim [0, 5]"},
-                 {1200, 400},
-                 {100ms, 100, {{"data.csv", "time,state", 1000}}}});
-
         // uint32_t pin{14};
         while (!std::filesystem::exists(cavafifo))
             usleep(100);
         std::ifstream ifs(cavafifo);
         if (!ifs.is_open())
-        {
             throw std::runtime_error("Cannot open pipe " + cavafifo);
-        }
         // [[maybe_unused]] auto clearfifo =
         //     std::string(std::istreambuf_iterator<char>(ifs.rdbuf()), {});
 
@@ -177,22 +191,15 @@ int main(int argc, char** argv)
                 {logconsole, logstorage});
 
         auto handler{StateHandler{logif}};
-        graph->start();
-        const auto separator{","s};
-        auto tm{graphs::helpers::TimeMonitor()};
-
         log(logif, logs::level::info, "Audio inductor is started");
         while (ifs.good())
         {
             static auto prev{(char)0xFF};
             if (auto curr{(char)ifs.get()}; std::isdigit(curr) && curr != prev)
             {
-                auto currval{atoi(&curr)}, prevval{atoi(&prev)};
-                handler.set(currval);
-                auto timems = str(tm.getmiliseconds());
-                graph->add(timems + separator + str(prevval));
-                graph->add(timems + separator + str(currval));
-                log(logif, logs::level::debug, "Audio level: " + str(currval));
+                handler.set(atoi(&curr));
+                log(logif, logs::level::info,
+                    "Audio level: " + str(atoi(&curr)));
                 prev = curr;
             }
         }
