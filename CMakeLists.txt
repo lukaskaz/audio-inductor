@@ -22,6 +22,13 @@ add_dependencies(${PROJECT_NAME} libgraphs)
 add_dependencies(${PROJECT_NAME} libshellcmd)
 add_dependencies(${PROJECT_NAME} liblogger)
 add_dependencies(${PROJECT_NAME} libdisplays)
+add_dependencies(${PROJECT_NAME} libpwm)
+add_dependencies(${PROJECT_NAME} libadc)
+add_dependencies(${PROJECT_NAME} libservo)
+add_dependencies(${PROJECT_NAME} libledrgb)
+add_dependencies(${PROJECT_NAME} libgpio)
+add_dependencies(${PROJECT_NAME} libtts)
+add_dependencies(${PROJECT_NAME} libstt)
 add_dependencies(${PROJECT_NAME} cavaproject)
 
 target_link_libraries(${PROJECT_NAME}
@@ -29,4 +36,11 @@ target_link_libraries(${PROJECT_NAME}
     shell
     logger
     displays
+    pwm
+    adc
+    servo
+    ledrgb
+    gpio
+    tts
+    stt
 )
