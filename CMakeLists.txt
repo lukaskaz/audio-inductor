@@ -27,8 +27,7 @@ add_dependencies(${PROJECT_NAME} libadc)
 add_dependencies(${PROJECT_NAME} libservo)
 add_dependencies(${PROJECT_NAME} libledrgb)
 add_dependencies(${PROJECT_NAME} libgpio)
-add_dependencies(${PROJECT_NAME} libtts)
-add_dependencies(${PROJECT_NAME} libstt)
+add_dependencies(${PROJECT_NAME} libspeech)
 add_dependencies(${PROJECT_NAME} cavaproject)
 
 target_link_libraries(${PROJECT_NAME}
@@ -41,6 +40,5 @@ target_link_libraries(${PROJECT_NAME}
     servo
     ledrgb
     gpio
-    tts
-    stt
+    speech
 )
