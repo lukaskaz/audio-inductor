@@ -228,3 +228,17 @@ add_custom_target(setup
     COMMAND ./libledrgb-build/build/setup.sh ./libledrgb-build/build/libws2811-src/
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+add_custom_target(cleanup
+    COMMAND echo "Initiating emergency cleanup"
+)
+
+set(PWMLAST 4)
+set(PWMDRV pwmchip2)
+foreach (pwm RANGE 0 ${PWMLAST})
+  add_custom_command(
+      TARGET cleanup
+      COMMAND echo "Resetting pwm number ${pwm}"
+      COMMAND sudo echo ${pwm} > /sys/class/pwm/${PWMDRV}/unexport || true
+  )
+endforeach ()
