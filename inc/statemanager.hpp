@@ -65,6 +65,7 @@ class StateManager
     const std::chrono::milliseconds interval{80ms};
     const std::shared_ptr<logs::LogIf> logif;
     std::unique_ptr<StateIf> state;
+
     std::shared_ptr<adc::AdcIf> adc;
     std::shared_ptr<pwm::PwmIf> pwm;
     std::vector<std::shared_ptr<servo::ServoIf>> servos;

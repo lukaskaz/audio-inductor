@@ -10,7 +10,12 @@
 namespace ttstype = tts::googlecloud;
 namespace stttype = stt::v1::googlecloud;
 
+using namespace tospeech;
+using namespace tospoken;
+
+// static const auto speechlanguage = tts::language::english;
 static const auto speechlanguage = tts::language::polish;
+static const auto spokenlanguage = stt::language::polish;
 
 enum class modetype
 {
@@ -25,49 +30,59 @@ modetype testrun(StateManager& state, const auto tts, const auto stt,
                  const auto logif)
 {
     uint32_t vulgarity{90};
-    tts->speak(getspeechtext(task::testrunstart, speechlanguage));
-    auto response = stt->listen();
-    while (strlower(response.first).find("tak") != 0)
+    tts->speak(gettext(task::voicecontrolmode, speechlanguage));
+    while (true)
     {
-        log(logif, logs::level::info, "Response: " + response.first);
-        if (strlower(response.first).find("zmniejsz wulgarność") !=
-            std::string::npos)
+        auto response = stt->listen();
+        auto responseid = getspoken(response.first, spokenlanguage);
+        log(logif, logs::level::info,
+            "Text: " + response.first + ", id: " + str((int32_t(responseid))));
+        switch (responseid)
         {
-            tts->speak("O ile?");
-            response = stt->listen();
-            vulgarity -= atoi(response.first.c_str());
-            tts->speak("Teraz mam " + str(vulgarity) +
-                       "%, będę grzeczna kurde");
-            response = stt->listen();
-            if (strlower(response.first).find("chcesz mniej") !=
-                std::string::npos)
-                tts->speak("Wyluzuj, jest git!");
-        }
-        else if (strlower(response.first).find("wulgarność") !=
-                 std::string::npos)
-        {
-            tts->speak("Ustawiona na " + str(vulgarity) + "%");
-        }
-        else if (strlower(response.first).find("zakończ program") !=
-                 std::string::npos)
-        {
-            tts->speak(getspeechtext(task::programexit, speechlanguage));
-            return modetype::exit;
-        }
-        else
-            tts->speak("Noż kurwa, nie rozumiem!");
-        response = stt->listen();
-    }
-    state.testrun();
-    tts->speak(getspeechtext(task::testrunend, speechlanguage));
+            case spoken::whatsvulg:
+                tts->speak(gettext(task::getval, speechlanguage) +
+                           str(vulgarity) + "%");
+                break;
+            case spoken::decreasevulg:
+                tts->speak(gettext(task::byhowmuch, speechlanguage));
+                break;
+            case spoken::numerical:
+                vulgarity -= atoi(response.first.c_str());
+                tts->speak(gettext(task::getval, speechlanguage) +
+                           str(vulgarity) + "%");
+                tts->speak(gettext(task::ibehave, speechlanguage));
+                break;
+            case spoken::wantless:
+                tts->speak(gettext(task::keepcalm, speechlanguage));
+                break;
+            case spoken::exitprogram:
+                tts->speak(gettext(task::programexit, speechlanguage));
+                return modetype::exit;
+            case spoken::runtest:
+            {
+                tts->speak(gettext(task::testrunstart, speechlanguage));
+                state.testrun();
+                tts->speak(gettext(task::testrunend, speechlanguage));
 
-    const uint32_t buzzerpin{17};
-    auto buzzgpio = gpio::Factory::create<gpio::rpi::native::Gpio,
+                const uint32_t buzzerpin{17};
+                auto buzzgpio =
+                    gpio::Factory::create<gpio::rpi::native::Gpio,
                                           gpio::rpi::native::config_t>(
-        {gpio::rpi::native::modetype::output_normal, {buzzerpin}, logif});
-    buzzgpio->write(17, 1);
-    usleep(500 * 1000);
-    buzzgpio->write(17, 0);
+                        {gpio::rpi::native::modetype::output_normal,
+                         {buzzerpin},
+                         logif});
+                buzzgpio->write(17, 1);
+                usleep(1000 * 1000);
+                buzzgpio->write(17, 0);
+                break;
+            }
+            case spoken::exitroutine:
+                return modetype::idle;
+            default:
+                tts->speak(gettext(task::dontgetit, speechlanguage));
+                break;
+        }
+    }
     return modetype::idle;
 }
 
@@ -90,7 +105,7 @@ modetype audiointerpret(StateManager& state, const auto tts, const auto logif)
     //     std::string(std::istreambuf_iterator<char>(ifs.rdbuf()), {});
 
     auto exitmonitor = Async([]() { getchar(); });
-    tts->speak(getspeechtext(task::analyzestart, speechlanguage));
+    tts->speak(gettext(task::analyzestart, speechlanguage));
     log(logif, logs::level::info, "Audio inductor is started");
     while (ifs.good() && exitmonitor.isrunning())
     {
@@ -105,8 +120,8 @@ modetype audiointerpret(StateManager& state, const auto tts, const auto logif)
             }
         }
     }
-    tts->speak(getspeechtext(task::analyzeend, speechlanguage));
-    // app.kill();
+    tts->speak(gettext(task::analyzeend, speechlanguage));
+    app.kill();
     return modetype::idle;
 }
 
@@ -132,10 +147,11 @@ int main(int argc, char** argv)
             {{speechlanguage, tts::gender::female, 1}, logif});
         auto stt = stt::TextFromVoiceFactory::create<stttype::TextFromVoice,
                                                      stttype::configmin_t>(
-            {stt::language::polish, {}, logif});
+            {spokenlanguage, "1.0t", logif});
 
-        tts->speak(getspeechtext(task::initiatating, speechlanguage));
-        // auto graph = graphs::GraphFactory::create<graphs::dygraph::Graph>(
+        tts->speak(gettext(task::initiatating, speechlanguage));
+        // auto graph =
+        // graphs::GraphFactory::create<graphs::dygraph::Graph>(
         //     {"Servos switching", "time", "servo num"}, {500, 300},
         //     {100ms, 100, {{"data.csv", "time,state"}}});
         // $ amixer -c 8 sset PCM 5%
@@ -150,10 +166,10 @@ int main(int argc, char** argv)
             [&mode](const gpio::GpioData& data) {
                 mode = (modetype)std::get<1>(data);
             });
-        // swgpio->observe(switchpin, swobserver);
+        swgpio->observe(switchpin, swobserver);
 
-        tts->speak(getspeechtext(task::ready, speechlanguage));
-        tts->speak(getspeechtext(task::selectmode, speechlanguage));
+        tts->speak(gettext(task::ready, speechlanguage));
+        tts->speak(gettext(task::selectmode, speechlanguage));
         while (true)
         {
             if (mode == modetype::analyze)

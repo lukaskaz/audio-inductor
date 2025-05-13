@@ -235,10 +235,21 @@ add_custom_target(cleanup
 
 set(PWMLAST 4)
 set(PWMDRV pwmchip2)
-foreach (pwm RANGE 0 ${PWMLAST})
+foreach(pwm RANGE 0 ${PWMLAST})
   add_custom_command(
       TARGET cleanup
       COMMAND echo "Resetting pwm number ${pwm}"
       COMMAND sudo echo ${pwm} > /sys/class/pwm/${PWMDRV}/unexport || true
   )
-endforeach ()
+endforeach()
+
+add_custom_target(prepare
+    COMMAND echo "Going through initial setup"
+)
+
+add_custom_command(
+      TARGET prepare
+      COMMAND echo "Setting up ledrgb module"
+      COMMAND cd ./libledrgb-build/build && ./setup.sh ./libws2811-src 
+)
+

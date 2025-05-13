@@ -102,7 +102,7 @@ StateManager::StateManager(std::shared_ptr<logs::LogIf> logif) : logif{logif}
          {1200, 400},
          {100ms, 100, {{"data.csv", "time,state", 1000}}}});
     timemonitor = std::make_shared<graphs::helpers::TimeMonitor>();
-    // graph->start();
+    graph->start();
 }
 
 StateManager::~StateManager()
@@ -138,28 +138,67 @@ bool StateManager::testrun() const
     auto servosgroup =
         servo::Factory::create<servo::group::Servo, servo::group::config_t>(
             {servos, logif});
-    log(logif, logs::level::info, "Moving servos left");
+    // log(logif, logs::level::info, "Moving servos left");
+    // display->show(str(1), disptype::colortype::first);
+    // servosgroup->moveleft();
+    // getchar();
+    // log(logif, logs::level::info, "Moving servos right");
+    // display->show(str(2), disptype::colortype::first);
+    // servosgroup->moveright();
+    // getchar();
+    // log(logif, logs::level::info, "Moving servos middle");
+    // display->show(str(3), disptype::colortype::first);
+    // servosgroup->movecenter();
+    // getchar();
+    // log(logif, logs::level::info, "Moving servos inside");
+    // display->show(str(4), disptype::colortype::first);
+    // servosgroup->moveto(posinside);
+    // getchar();
+    // log(logif, logs::level::info, "Moving servos outside");
+    // servosgroup->moveto(posoutside);
+    // display->show(str(5), disptype::colortype::first);
+    // log(logif, logs::level::info, "Test run procedure completed");
+    // getchar();
+    // display->show(" ", disptype::colortype::first);
+    log(logif, logs::level::info, "Moving first servo");
     display->show(str(1), disptype::colortype::first);
-    servosgroup->moveleft();
-    getchar();
-    log(logif, logs::level::info, "Moving servos right");
+    servos.at(0)->moveto(posinside);
+    usleep(1000 * 1000);
+    display->show(str(1), disptype::colortype::second);
+    servos.at(0)->moveto(posoutside);
+    usleep(1000 * 1000);
+    log(logif, logs::level::info, "Moving second servo");
     display->show(str(2), disptype::colortype::first);
-    servosgroup->moveright();
-    getchar();
-    log(logif, logs::level::info, "Moving servos middle");
+    servos.at(1)->moveto(posinside);
+    usleep(1000 * 1000);
+    display->show(str(2), disptype::colortype::second);
+    servos.at(1)->moveto(posoutside);
+    usleep(1000 * 1000);
+    log(logif, logs::level::info, "Moving third servo");
     display->show(str(3), disptype::colortype::first);
-    servosgroup->movecenter();
-    getchar();
-    log(logif, logs::level::info, "Moving servos inside");
+    servos.at(2)->moveto(posinside);
+    usleep(1000 * 1000);
+    display->show(str(3), disptype::colortype::second);
+    servos.at(2)->moveto(posoutside);
+    usleep(1000 * 1000);
+    log(logif, logs::level::info, "Moving forth servo");
     display->show(str(4), disptype::colortype::first);
+    servos.at(3)->moveto(posinside);
+    usleep(1000 * 1000);
+    display->show(str(4), disptype::colortype::second);
+    servos.at(3)->moveto(posoutside);
+    usleep(1000 * 1000);
+
+    log(logif, logs::level::info, "Moving all servos inside");
+    display->show(str(0), disptype::colortype::first);
     servosgroup->moveto(posinside);
-    getchar();
-    log(logif, logs::level::info, "Moving servos outside");
+    usleep(1000 * 1000);
+    log(logif, logs::level::info, "Moving all servos outside");
     servosgroup->moveto(posoutside);
-    display->show(str(5), disptype::colortype::first);
+    display->show(str(0), disptype::colortype::second);
+    usleep(1000 * 1000);
     log(logif, logs::level::info, "Test run procedure completed");
-    getchar();
-    display->show(" ", disptype::colortype::first);
+    display->show(" ");
     return true;
 }
 
