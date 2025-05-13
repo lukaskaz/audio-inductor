@@ -51,7 +51,8 @@ jobs:
       run: |
         mkdir build && cd build && cmake .. && make
     - name: Running audioinductor program
-      run: echo "Running app"
+      run: |
+        ./build/audioinductor
 
   test:
     name: Tests

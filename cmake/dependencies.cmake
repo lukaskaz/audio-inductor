@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-find_package(Threads REQUIRED)
-find_library(WIRINGPI_LIBRARIES NAMES wiringPi)
-include_directories(${WIRINGPI_INCLUDE_DIRS})
-
 include(ExternalProject)
 
 set(source_dir "${CMAKE_BINARY_DIR}/libgraphs-src")
@@ -32,13 +28,34 @@ EXTERNALPROJECT_ADD(
   libshellcmd
   GIT_REPOSITORY    https://github.com/lukaskaz/lib-shellcmd.git
   GIT_TAG           main
-  PATCH_COMMAND     ${patching_cmd}
+  PATCH_COMMAND     ""
   PREFIX            libshellcmd-workspace
   SOURCE_DIR        ${source_dir}
   BINARY_DIR        ${build_dir}
   CONFIGURE_COMMAND mkdir /${build_dir}/build &> /dev/null
   BUILD_COMMAND     cd ${build_dir}/build && cmake -D BUILD_SHARED_LIBS=ON
                     ${source_dir} && make -j 4
+  UPDATE_COMMAND    ""
+  INSTALL_COMMAND   "" 
+  TEST_COMMAND      ""
+)
+include_directories(${source_dir}/inc)
+link_directories(${build_dir}/build)
+
+set(source_dir "${CMAKE_BINARY_DIR}/liblogger-src")
+set(build_dir "${CMAKE_BINARY_DIR}/liblogger-build")
+
+EXTERNALPROJECT_ADD(
+  liblogger
+  GIT_REPOSITORY    https://github.com/lukaskaz/lib-logger.git
+  GIT_TAG           main
+  PATCH_COMMAND     ""
+  PREFIX            liblogger-workspace
+  SOURCE_DIR        ${source_dir}
+  BINARY_DIR        ${build_dir}
+  CONFIGURE_COMMAND mkdir /${build_dir}/build &> /dev/null
+  BUILD_COMMAND     cd ${build_dir}/build && cmake -D BUILD_SHARED_LIBS=ON
+                    ${source_dir} && make
   UPDATE_COMMAND    ""
   INSTALL_COMMAND   "" 
   TEST_COMMAND      ""
@@ -64,3 +81,175 @@ EXTERNALPROJECT_ADD(
 )
 #include_directories(${project_dir}/inc)
 #link_directories(${project_dir}/build)
+
+set(source_dir "${CMAKE_BINARY_DIR}/libdisplays-src")
+set(build_dir "${CMAKE_BINARY_DIR}/libdisplays-build")
+EXTERNALPROJECT_ADD(
+  libdisplays
+  GIT_REPOSITORY    https://github.com/lukaskaz/lib-displays.git
+  GIT_TAG           main
+  PATCH_COMMAND     ""
+  PREFIX            libdisplays-workspace
+  SOURCE_DIR        ${source_dir}
+  BINARY_DIR        ${build_dir}
+  CONFIGURE_COMMAND mkdir /${build_dir}/build &> /dev/null
+  BUILD_COMMAND     cd ${build_dir}/build && cmake -D BUILD_SHARED_LIBS=ON
+                    ${source_dir} && make -j 4
+  UPDATE_COMMAND    ""
+  INSTALL_COMMAND   "" 
+  TEST_COMMAND      ""
+)
+include_directories(${source_dir}/inc)
+link_directories(${build_dir}/build)
+
+set(source_dir "${CMAKE_BINARY_DIR}/libpwm-src")
+set(build_dir "${CMAKE_BINARY_DIR}/libpwm-build")
+EXTERNALPROJECT_ADD(
+  libpwm
+  GIT_REPOSITORY    https://github.com/lukaskaz/lib-pwm.git
+  GIT_TAG           main
+  PATCH_COMMAND     ""
+  PREFIX            libpwm-workspace
+  SOURCE_DIR        ${source_dir}
+  BINARY_DIR        ${build_dir}
+  CONFIGURE_COMMAND mkdir /${build_dir}/build &> /dev/null
+  BUILD_COMMAND     cd ${build_dir}/build && cmake -D BUILD_SHARED_LIBS=ON
+                    ${source_dir} && make -j 4
+  UPDATE_COMMAND    ""
+  INSTALL_COMMAND   "" 
+  TEST_COMMAND      ""
+)
+include_directories(${source_dir}/inc)
+link_directories(${build_dir}/build)
+
+set(source_dir "${CMAKE_BINARY_DIR}/libadc-src")
+set(build_dir "${CMAKE_BINARY_DIR}/libadc-build")
+EXTERNALPROJECT_ADD(
+  libadc
+  GIT_REPOSITORY    https://github.com/lukaskaz/lib-adc.git
+  GIT_TAG           main
+  PATCH_COMMAND     ""
+  PREFIX            libadc-workspace
+  SOURCE_DIR        ${source_dir}
+  BINARY_DIR        ${build_dir}
+  CONFIGURE_COMMAND mkdir /${build_dir}/build &> /dev/null
+  BUILD_COMMAND     cd ${build_dir}/build && cmake -D BUILD_SHARED_LIBS=ON
+                    ${source_dir} && make -j 4
+  UPDATE_COMMAND    ""
+  INSTALL_COMMAND   "" 
+  TEST_COMMAND      ""
+)
+include_directories(${source_dir}/inc)
+link_directories(${build_dir}/build)
+
+set(source_dir "${CMAKE_BINARY_DIR}/libservo-src")
+set(build_dir "${CMAKE_BINARY_DIR}/libservo-build")
+EXTERNALPROJECT_ADD(
+  libservo
+  GIT_REPOSITORY    https://github.com/lukaskaz/lib-servo.git
+  GIT_TAG           main
+  PATCH_COMMAND     ""
+  PREFIX            libservo-workspace
+  SOURCE_DIR        ${source_dir}
+  BINARY_DIR        ${build_dir}
+  CONFIGURE_COMMAND mkdir /${build_dir}/build &> /dev/null
+  BUILD_COMMAND     cd ${build_dir}/build && cmake -D BUILD_SHARED_LIBS=ON
+                    ${source_dir} && make -j 4
+  UPDATE_COMMAND    ""
+  INSTALL_COMMAND   "" 
+  TEST_COMMAND      ""
+)
+include_directories(${source_dir}/inc)
+link_directories(${build_dir}/build)
+
+set(source_dir "${CMAKE_BINARY_DIR}/libledrgb-src")
+set(build_dir "${CMAKE_BINARY_DIR}/libledrgb-build")
+EXTERNALPROJECT_ADD(
+  libledrgb
+  GIT_REPOSITORY    https://github.com/lukaskaz/lib-ledrgb.git
+  GIT_TAG           main
+  PATCH_COMMAND     ""
+  PREFIX            libledrgb-workspace
+  SOURCE_DIR        ${source_dir}
+  BINARY_DIR        ${build_dir}
+  CONFIGURE_COMMAND mkdir /${build_dir}/build &> /dev/null
+  BUILD_COMMAND     cd ${build_dir}/build && cmake -D BUILD_SHARED_LIBS=ON
+                    -D USE_RPI5=ON ${source_dir} && make -j 4
+  UPDATE_COMMAND    ""
+  INSTALL_COMMAND   "" 
+  TEST_COMMAND      ""
+)
+include_directories(${source_dir}/inc)
+link_directories(${build_dir}/build)
+
+set(source_dir "${CMAKE_BINARY_DIR}/libgpio-src")
+set(build_dir "${CMAKE_BINARY_DIR}/libgpio-build")
+EXTERNALPROJECT_ADD(
+  libgpio
+  GIT_REPOSITORY    https://github.com/lukaskaz/lib-gpio.git
+  GIT_TAG           main
+  PATCH_COMMAND     ""
+  PREFIX            libgpio-workspace
+  SOURCE_DIR        ${source_dir}
+  BINARY_DIR        ${build_dir}
+  CONFIGURE_COMMAND mkdir /${build_dir}/build &> /dev/null
+  BUILD_COMMAND     cd ${build_dir}/build && cmake -D BUILD_SHARED_LIBS=ON
+                    -D USE_RPI5=ON ${source_dir} && make -j 4
+  UPDATE_COMMAND    ""
+  INSTALL_COMMAND   "" 
+  TEST_COMMAND      ""
+)
+include_directories(${source_dir}/inc)
+link_directories(${build_dir}/build)
+
+set(source_dir "${CMAKE_BINARY_DIR}/libspeech-src")
+set(build_dir "${CMAKE_BINARY_DIR}/libspeech-build")
+EXTERNALPROJECT_ADD(
+  libspeech
+  GIT_REPOSITORY    https://github.com/lukaskaz/lib-speech.git
+  GIT_TAG           main
+  PATCH_COMMAND     ""
+  PREFIX            libspeech-workspace
+  SOURCE_DIR        ${source_dir}
+  BINARY_DIR        ${build_dir}
+  CONFIGURE_COMMAND mkdir /${build_dir}/build &> /dev/null
+  BUILD_COMMAND     cd ${build_dir}/build && cmake -D BUILD_SHARED_LIBS=ON
+                    -D USE_RPI5=ON ${source_dir} && make -j 4
+  UPDATE_COMMAND    ""
+  INSTALL_COMMAND   "" 
+  TEST_COMMAND      ""
+)
+include_directories(${source_dir}/inc)
+link_directories(${build_dir}/build)
+
+add_custom_target(setup
+    COMMAND echo "Initiating pre-run setup"
+    COMMAND cp -a ./libgraphs-src/resources ${CMAKE_SOURCE_DIR}
+    COMMAND ./libledrgb-build/build/setup.sh ./libledrgb-build/build/libws2811-src/
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_custom_target(cleanup
+    COMMAND echo "Initiating emergency cleanup"
+)
+
+set(PWMLAST 4)
+set(PWMDRV pwmchip2)
+foreach(pwm RANGE 0 ${PWMLAST})
+  add_custom_command(
+      TARGET cleanup
+      COMMAND echo "Resetting pwm number ${pwm}"
+      COMMAND sudo echo ${pwm} > /sys/class/pwm/${PWMDRV}/unexport || true
+  )
+endforeach()
+
+add_custom_target(prepare
+    COMMAND echo "Going through initial setup"
+)
+
+add_custom_command(
+      TARGET prepare
+      COMMAND echo "Setting up ledrgb module"
+      COMMAND cd ./libledrgb-build/build && ./setup.sh ./libws2811-src 
+)
+

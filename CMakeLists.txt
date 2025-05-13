@@ -20,12 +20,25 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_executable(${PROJECT_NAME} ${SOURCES})
 add_dependencies(${PROJECT_NAME} libgraphs)
 add_dependencies(${PROJECT_NAME} libshellcmd)
+add_dependencies(${PROJECT_NAME} liblogger)
+add_dependencies(${PROJECT_NAME} libdisplays)
+add_dependencies(${PROJECT_NAME} libpwm)
+add_dependencies(${PROJECT_NAME} libadc)
+add_dependencies(${PROJECT_NAME} libservo)
+add_dependencies(${PROJECT_NAME} libledrgb)
+add_dependencies(${PROJECT_NAME} libgpio)
+add_dependencies(${PROJECT_NAME} libspeech)
 add_dependencies(${PROJECT_NAME} cavaproject)
 
 target_link_libraries(${PROJECT_NAME}
     graphs
-    shellcmd
-    ${WIRINGPI_LIBRARIES}
-    ${CMAKE_THREAD_LIBS_INIT}
+    shell
+    logger
+    displays
+    pwm
+    adc
+    servo
+    ledrgb
+    gpio
+    speech
 )
-
